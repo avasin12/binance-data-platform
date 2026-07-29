@@ -1,0 +1,21 @@
+### dotenv ###
+.env
+
+### IDE ###
+.vscode/
+
+### Airflow ###
+logs/
+
+### Python ###
+__pycache__/
+*.pyc
+
+### Tests ###
+.pytest_cache/
+
+### Lint ###
+.ruff_cache/
+
+### Temporary ###
+test.ipynb

@@ -1,0 +1,12 @@
+pandas
+numpy
+requests
+sqlalchemy
+psycopg2-binary
+dbt-postgres
+astronomer-cosmos
+clickhouse-connect
+boto3
+minio
+apache-airflow-providers-amazon
+python-dotenv
