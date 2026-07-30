@@ -6,7 +6,7 @@
 
 ### Airflow ###
 logs/
-
+config/airflow.cfg
 ### Python ###
 __pycache__/
 *.pyc
