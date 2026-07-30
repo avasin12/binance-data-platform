@@ -4,3 +4,4 @@ DEFAULT_BINANCE_PARAMS = {
     "symbol": "BTCUSDT",
     "limit": 100
 }
+

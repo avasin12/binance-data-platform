@@ -1,0 +1,30 @@
+[tool.ruff]
+
+exclude = [
+    ".git",
+    ".venv",
+    ".ruff_cache",
+    "__pycache__",
+    "logs",
+]
+
+
+
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+]
+
+ignore = [
+    "E501",
+]
+
+
+[tool.ruff.lint.isort]
+known-first-party = ["acme"]

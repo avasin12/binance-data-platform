@@ -20,7 +20,7 @@ def validate_binance_response(data, limit):
 
 
     if len(data) == 0:
-        logger.warning(f'Response is empty')
+        logger.warning('Response is empty')
         raise ValueError("Empty Binance response")
 
 

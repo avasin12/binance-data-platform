@@ -1,12 +1,11 @@
 #/home/avasin/airflow/dags/acme/clients/minio_client.py
 
+import logging
+from pathlib import Path
+
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 from airflow.sdk import Variable
 from botocore.exceptions import ClientError
-from pathlib import Path
-
-
-import logging
 
 logger = logging.getLogger(__name__)
 

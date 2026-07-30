@@ -1,13 +1,16 @@
 #/home/avasin/airflow/dags/acme/extract/extract_binance.py
 
-import requests
-import logging
 import json
+import logging
 from pathlib import Path
-from acme.utils.dag_context import get_dag_context
+
+import requests
 from airflow.sdk import Variable
+
 from acme.quality.validate_binance import validate_binance_response
 from acme.storage.paths import build_raw_key
+from acme.utils.dag_context import get_dag_context
+
 logger = logging.getLogger(__name__)
 
 

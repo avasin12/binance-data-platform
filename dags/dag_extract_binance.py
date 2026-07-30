@@ -1,15 +1,15 @@
 #/home/avasin/airflow/dags/dag_extract_binance.py
 
-from acme.extract.extract_binance import extract_market_data
-from acme.clients.minio_client import upload_to_minio
-from acme.utils.notification import notify_on_failed
-from acme.storage.files import delete_local_files
 from datetime import datetime, timedelta
 
-from acme.utils.dag_params import DEFAULT_BINANCE_PARAMS
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
+from acme.clients.minio_client import upload_to_minio
+from acme.extract.extract_binance import extract_market_data
+from acme.storage.files import delete_local_files
+from acme.utils.dag_params import DEFAULT_BINANCE_PARAMS
+from acme.utils.notification import notify_on_failed
 
 default_args = {
     "owner": "avasin",
@@ -20,7 +20,7 @@ default_args = {
 
 tags = ["critical", "etl"]
 
-
+FILE_INFO_TEMPLATE = "{{ ti.xcom_pull(task_ids='extract_binance_trades', key='return_value') }}"
 
 with DAG(
     dag_id = "dag_extract_binance",
@@ -47,7 +47,7 @@ with DAG(
         task_id="upload_to_minio",
         python_callable=upload_to_minio,
         op_kwargs={
-            "file_info": "{{ ti.xcom_pull(task_ids='extract_binance_trades', key='return_value') }}"
+            "file_info": FILE_INFO_TEMPLATE
         },
     )
 
@@ -55,7 +55,7 @@ with DAG(
         task_id="delete_local_files",
         python_callable=delete_local_files,
         op_kwargs={
-            "file_info": "{{ ti.xcom_pull(task_ids='extract_binance_trades', key='return_value') }}"
+            "file_info": FILE_INFO_TEMPLATE
         },
     )
     extract_binance_trades_task >> upload_to_minio_task >> delete_local_file_task

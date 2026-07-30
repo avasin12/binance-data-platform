@@ -2,7 +2,6 @@
 from airflow.sdk import get_current_context
 
 
-
 def get_dag_context():
     context = get_current_context()
 
