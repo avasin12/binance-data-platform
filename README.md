@@ -2,17 +2,23 @@
 
 ## Overview
 
-End-to-end data engineering platform for collecting, processing, storing and analyzing cryptocurrency market data from Binance API.
+End-to-end data engineering platform for collecting, processing and analyzing cryptocurrency market data from Binance API.
 
-The project demonstrates a production-oriented ETL pipeline using Apache Airflow, MinIO, PostgreSQL, dbt and ClickHouse.
+The project demonstrates a production-oriented ETL pipeline using:
 
-The main goal is to build a scalable data platform with:
+- Apache Airflow
+- MinIO
+- PostgreSQL
+- dbt
+- ClickHouse
 
-- raw data storage;
+Main goals:
+
+- raw data ingestion;
 - data quality validation;
 - schema validation;
-- transformation layer;
-- analytical data models.
+- data transformation;
+- analytical data modeling.
 
 ---
 
@@ -25,9 +31,9 @@ flowchart TD
 
     A --> B
 
-    subgraph DAG1["DAG 1 - Extract Layer (Airflow Operators)"]
-        B[Extract raw JSON data]
-        C[Raw Data Quality Checks]
+    subgraph DAG1["DAG 1 - Extract Layer"]
+        B[Extract raw JSON]
+        C[Data Quality Checks]
         D[MinIO Raw Zone]
 
         B --> C
@@ -37,12 +43,11 @@ flowchart TD
 
     D --> E
 
-
-    subgraph DAG2["DAG 2 - Transform Layer (Airflow TaskFlow + pandas)"]
-        E[Read raw data from MinIO]
-        F[Data Transformation]
-        G[Transformed Data Quality]
-        H[PostgreSQL staging]
+    subgraph DAG2["DAG 2 - Transform Layer"]
+        E[Read from MinIO]
+        F[pandas Transformation]
+        G[Data Quality Checks]
+        H[PostgreSQL Staging]
 
         E --> F
         F --> G
@@ -52,27 +57,23 @@ flowchart TD
 
     H --> I
 
-
     subgraph DAG3["DAG 3 - dbt"]
-        I[Sources]
-        J[Staging Models]
-        K[Marts]
-        L[dbt Tests]
+        I[Staging Models]
+        J[Marts]
+        K[dbt Tests]
 
         I --> J
         J --> K
-        K --> L
     end
 
 
-    K --> M
-
+    J --> L
 
     subgraph DAG4["DAG 4 - Analytics Load"]
-        M[Load mart tables]
-        N[ClickHouse Analytics]
+        L[Load Analytics Data]
+        M[ClickHouse]
 
-        M --> N
+        L --> M
     end
 ```
 
@@ -82,27 +83,26 @@ flowchart TD
 
 ## DAG 1 - Extract Binance Trades
 
-Current implementation.
+Implemented.
 
 Responsibilities:
 
-- Extract market data from Binance API.
-- Validate API response structure.
-- Validate trade schema using Pydantic models.
-- Save raw JSON data locally.
-- Upload raw data to MinIO.
-- Remove temporary local files after successful upload.
+- Extract data from Binance API.
+- Validate API response.
+- Validate trade schema with Pydantic.
+- Store raw JSON locally.
+- Upload data to MinIO.
+- Remove temporary files.
 
-Implemented components:
+Technologies:
 
 - Airflow PythonOperator
-- MinIO S3-compatible storage
-- Pydantic schema validation
-- Data quality checks
-- Pytest coverage
+- MinIO S3 API
+- Pydantic v2
+- Pytest
 
 
-Raw data storage format:
+Raw storage format:
 
 ```
 raw/binance/trades/{symbol}/{YYYY/MM/DD}/{run_id}/trades.json
@@ -112,6 +112,37 @@ Example:
 
 ```
 raw/binance/trades/BTCUSDT/2026/07/30/manual__2026-07-30T00:00:00/trades.json
+```
+
+---
+
+# Data Quality
+
+The pipeline uses multiple validation layers.
+
+## Raw Data Validation
+
+Checks:
+
+- response format;
+- empty response;
+- expected record count.
+
+## Schema Validation
+
+Implemented using Pydantic models.
+
+Example:
+
+```python
+class Trade(BaseModel):
+    id: int
+    price: str
+    qty: str
+    quoteQty: str
+    time: int
+    isBuyerMaker: bool
+    isBestMatch: bool
 ```
 
 ---
@@ -126,17 +157,17 @@ raw/binance/trades/BTCUSDT/2026/07/30/manual__2026-07-30T00:00:00/trades.json
 
 ## Storage
 
-- MinIO (S3-compatible object storage)
+- MinIO
 - PostgreSQL
 
 ## Transformation
 
 - pandas
-- dbt (planned)
+- dbt
 
 ## Analytics
 
-- ClickHouse (planned)
+- ClickHouse
 
 ## Development
 
@@ -144,57 +175,9 @@ raw/binance/trades/BTCUSDT/2026/07/30/manual__2026-07-30T00:00:00/trades.json
 - Pydantic v2
 - Pytest
 - Ruff
+- uv
 - Docker Compose
 - Git
-
----
-
-# Data Quality
-
-The pipeline contains multiple validation layers.
-
-## Raw Data Validation
-
-Implemented checks:
-
-- API response type;
-- empty response detection;
-- expected number of records.
-
-Example:
-
-```python
-if len(data) != limit:
-    logger.warning(
-        "Received %s trades instead of expected %s",
-        len(data),
-        limit,
-    )
-```
-
----
-
-## Schema Validation
-
-Schema validation is implemented using Pydantic.
-
-Example:
-
-```python
-from pydantic import BaseModel
-
-
-class Trade(BaseModel):
-    id: int
-    price: str
-    qty: str
-    quoteQty: str
-    time: int
-    isBuyerMaker: bool
-    isBestMatch: bool
-```
-
-The model validates incoming Binance trade objects before storing raw data.
 
 ---
 
@@ -206,24 +189,11 @@ The model validates incoming Binance trade objects before storing raw data.
 │   ├── dag_extract_binance.py
 │   └── acme
 │       ├── clients
-│       │   └── minio_client.py
-│       │
 │       ├── extract
-│       │   └── extract_binance.py
-│       │
 │       ├── models
-│       │   └── binance.py
-│       │
 │       ├── quality
-│       │   └── validate_binance.py
-│       │
 │       ├── storage
-│       │   ├── files.py
-│       │   └── paths.py
-│       │
 │       └── utils
-│           ├── dag_context.py
-│           └── dag_params.py
 │
 ├── tests
 │   ├── test_binance_model.py
@@ -231,9 +201,8 @@ The model validates incoming Binance trade objects before storing raw data.
 │   └── test_paths.py
 │
 ├── docker-compose.yaml
-├── dockerfile
-├── requirements.txt
 ├── pyproject.toml
+├── uv.lock
 └── README.md
 ```
 
@@ -241,18 +210,16 @@ The model validates incoming Binance trade objects before storing raw data.
 
 # Testing
 
-The project uses Pytest for automated testing.
+Implemented tests:
 
-Current test coverage includes:
-
-- Pydantic models validation;
-- raw data quality validation;
+- Pydantic model validation;
+- raw data validation;
 - storage path generation.
 
-Run tests:
+Run:
 
 ```bash
-pytest
+uv run pytest
 ```
 
 ---
@@ -262,13 +229,13 @@ pytest
 Ruff is used for:
 
 - import sorting;
-- code style checks;
-- common Python errors detection.
+- style checks;
+- static analysis.
 
-Run lint:
+Run:
 
 ```bash
-ruff check .
+uv run ruff check .
 ```
 
 ---
@@ -280,63 +247,19 @@ ruff check .
 - Docker
 - Docker Compose
 - Python 3.12+
+- uv
 
----
 
-## Clone repository
+## Install dependencies
 
 ```bash
 git clone https://github.com/avasin12/binance-data-platform.git
 
 cd binance-data-platform
+
+uv sync
 ```
 
----
-
-## Environment variables
-
-Create `.env` file:
-
-```
-AIRFLOW_UID=50000
-```
-
-Configure Airflow Variables:
-
-```
-binance_api_url
-minio_raw_bucket
-```
-
-Configure Airflow Connection:
-
-```
-minio_client
-```
-
----
-
-## Start services
-
-```bash
-docker compose up -d
-```
-
----
-
-## Run tests
-
-```bash
-pytest
-```
-
----
-
-## Run lint
-
-```bash
-ruff check .
-```
 
 ---
 
@@ -346,16 +269,18 @@ Implemented:
 
 - [x] Airflow environment
 - [x] Binance API extraction
-- [x] Raw data quality validation
+- [x] Raw data validation
 - [x] Pydantic schema validation
 - [x] MinIO raw storage
 - [x] Temporary file cleanup
 - [x] Unit tests
 - [x] Ruff linting
+- [x] uv dependency management
+
 
 In progress:
 
 - [ ] DAG 2: pandas transformation pipeline
 - [ ] PostgreSQL staging layer
-- [ ] dbt transformations
+- [ ] dbt models
 - [ ] ClickHouse analytics layer
