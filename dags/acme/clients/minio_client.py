@@ -4,8 +4,9 @@ import logging
 from pathlib import Path
 
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
-from airflow.sdk import Variable
 from botocore.exceptions import ClientError
+
+from acme.config.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ def upload_to_minio(file_info):
 
     key = file_info["key"]
 
-    bucket = Variable.get("minio_raw_bucket")
+    bucket = settings.minio_raw_bucket
     try:
 
         minio_client.upload_file(filepath, bucket, key)

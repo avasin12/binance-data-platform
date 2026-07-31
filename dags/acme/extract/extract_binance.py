@@ -5,8 +5,8 @@ import logging
 from pathlib import Path
 
 import requests
-from airflow.sdk import Variable
 
+from acme.config.settings import settings
 from acme.quality.validate_binance import (
     validate_binance_response,
     validate_trades_schema,
@@ -35,7 +35,7 @@ def extract_market_data():
         "symbol": symbol,
         "limit": limit
     }
-    url = Variable.get("binance_api_url")
+    url = settings.binance_api_url
 
     try:
         response = requests.get(
