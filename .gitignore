@@ -1,6 +1,6 @@
 ### dotenv ###
 .env
-
+.venv/
 ### IDE ###
 .vscode/
 
