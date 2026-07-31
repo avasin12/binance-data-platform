@@ -7,7 +7,10 @@ from pathlib import Path
 import requests
 from airflow.sdk import Variable
 
-from acme.quality.validate_binance import validate_binance_response
+from acme.quality.validate_binance import (
+    validate_binance_response,
+    validate_trades_schema,
+)
 from acme.storage.paths import build_raw_key
 from acme.utils.dag_context import get_dag_context
 
@@ -76,7 +79,12 @@ def extract_market_data():
         )
         raise
 
+
     validate_binance_response(data=response_result, limit=limit)
+
+    validate_trades_schema(
+    data=response_result
+)
 
     logger.info("Received %s trades", len(response_result))
 

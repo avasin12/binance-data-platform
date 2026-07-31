@@ -28,3 +28,9 @@ ignore = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["acme"]
+
+
+[tool.pytest.ini_options]
+pythonpath = [
+    "dags"
+]

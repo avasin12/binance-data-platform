@@ -2,56 +2,42 @@
 
 import logging
 
-REQUIRED_FIELDS = {
-    "id",
-    "price",
-    "qty",
-    "time"
-
-}
+from acme.models.binance import Trade
 
 logger = logging.getLogger(__name__)
+
+def validate_trades_schema(data):
+    result = []
+
+    for trade in data:
+        result.append(Trade(**trade))
+
+    return result
+
+
+
 
 def validate_binance_response(data, limit):
 
     if not isinstance(data, list):
-        logger.error('Response is not a list')
-        raise ValueError('Invalid response format')
+        logger.error("Response is not a list")
+        raise ValueError("Invalid response format")
 
 
     if len(data) == 0:
-        logger.warning('Response is empty')
+        logger.warning("Response is empty")
         raise ValueError("Empty Binance response")
 
 
     if len(data) != limit:
-        logger.warning(f"Recieved {len(data)} trades instead of expected {limit}")
+        logger.warning(
+            "Received %s trades instead of expected %s",
+            len(data),
+            limit,
+        )
 
 
-    for trade in data:
-
-        if not isinstance(trade, dict):
-            logger.error(
-                "Trade is not dict: %s",
-                trade
-            )
-            raise ValueError(
-                "Invalid trade format"
-            )
-
-
-        missing_fields = REQUIRED_FIELDS - trade.keys()
-    
-        if missing_fields:
-
-            logger.error(
-                "Trade is missing fields: %s",
-                missing_fields
-            )
-            raise ValueError(
-                f"Invalid trade structure. Missing fields: {missing_fields}"
-            )
-
-    logger.info("Raw data quality check passed")
-
-
+    logger.info(
+        "Raw data quality check passed. Trades count: %s",
+        len(data),
+    )
