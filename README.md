@@ -135,11 +135,10 @@ Implemented using Pydantic models.
 Example:
 
 ```python
-class Trade(BaseModel):
+class BinanceAggTrade(BaseModel):
     id: int
     price: str
     qty: str
-    quoteQty: str
     time: int
     isBuyerMaker: bool
     isBestMatch: bool

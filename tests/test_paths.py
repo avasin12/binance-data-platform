@@ -9,13 +9,11 @@ def test_build_raw_key_creates_expected_path():
     result = build_raw_key(
         symbol="BTCUSDT",
         logical_date=logical_date,
-        run_id="manual__2026-07-30T00:00:00",
     )
 
     assert result == (
         "raw/binance/trades/"
         "BTCUSDT/"
         "2026/07/30/"
-        "manual__2026-07-30T00:00:00/"
         "trades.json"
     )

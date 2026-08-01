@@ -2,6 +2,7 @@
 
 import json
 import logging
+from datetime import timedelta
 from pathlib import Path
 
 import requests
@@ -28,13 +29,24 @@ def extract_market_data():
     limit = params["limit"]
 
     logical_date = dag_context["logical_date"]
-    run_id = dag_context["run_id"]
+
+    start_time = logical_date.replace(
+        hour=0,
+        minute=0,
+        second=0,
+        microsecond=0,
+    )
+
+    end_time = start_time + timedelta(days=1)
 
 
     request_params = {
         "symbol": symbol,
-        "limit": limit
+        "limit": limit,
+        "startTime": int(start_time.timestamp() * 1000),
+        "endTime": int(end_time.timestamp() * 1000),
     }
+
     url = settings.binance_api_url
 
     try:
@@ -80,23 +92,33 @@ def extract_market_data():
         raise
 
 
-    validate_binance_response(data=response_result, limit=limit)
+    validate_binance_response(
+        data=response_result,
+        limit=limit
+    )
+
+
 
     validate_trades_schema(
-    data=response_result
-)
+        data=response_result
+    )
 
     logger.info("Received %s trades", len(response_result))
 
 
-    storage_key = build_raw_key(symbol=symbol, logical_date=logical_date, run_id=run_id)
+    storage_key = build_raw_key(symbol=symbol, logical_date=logical_date)
 
-    result_path = Path("/mnt/ceph/temp_jsons") / storage_key
+    result_path = Path(settings.temp_storage) / storage_key
 
     result_path.parent.mkdir(parents=True, exist_ok=True)
 
     with result_path.open('w', encoding='utf-8') as file:
-        json.dump(response_result, file, ensure_ascii=False, indent=4)
+        json.dump(
+            response_result,
+            file,
+            ensure_ascii=False,
+            indent=4
+        )
 
         logger.info('file seccessfully saved into %s', result_path)
 

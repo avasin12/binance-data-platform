@@ -2,7 +2,7 @@
 
 import logging
 
-from acme.models.binance import Trade
+from acme.models.binance import BinanceAggTrade
 
 logger = logging.getLogger(__name__)
 
@@ -10,7 +10,7 @@ def validate_trades_schema(data):
     result = []
 
     for trade in data:
-        result.append(Trade(**trade))
+        result.append(BinanceAggTrade(**trade))
 
     return result
 
