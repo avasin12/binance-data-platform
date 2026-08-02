@@ -1,10 +1,11 @@
-#/home/avasin/airflow/dags/acme/quality/validate_binance.py
+# /home/avasin/airflow/dags/acme/quality/validate_binance.py
 
 import logging
 
 from acme.models.binance import BinanceAggTrade
 
 logger = logging.getLogger(__name__)
+
 
 def validate_trades_schema(data):
     result = []
@@ -15,19 +16,15 @@ def validate_trades_schema(data):
     return result
 
 
-
-
 def validate_binance_response(data, limit):
 
     if not isinstance(data, list):
         logger.error("Response is not a list")
         raise ValueError("Invalid response format")
 
-
     if len(data) == 0:
         logger.warning("Response is empty")
         raise ValueError("Empty Binance response")
-
 
     if len(data) != limit:
         logger.warning(
@@ -35,7 +32,6 @@ def validate_binance_response(data, limit):
             len(data),
             limit,
         )
-
 
     logger.info(
         "Raw data quality check passed. Trades count: %s",

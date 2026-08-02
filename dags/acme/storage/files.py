@@ -1,4 +1,4 @@
-#/home/avasin/airflow/dags/acme/storage/files.py
+# /home/avasin/airflow/dags/acme/storage/files.py
 import logging
 from pathlib import Path
 
@@ -12,27 +12,21 @@ def delete_local_files(file_info):
     """
     filepath = file_info["filepath"]
 
-
     if isinstance(filepath, str):
-        files=[filepath]
+        files = [filepath]
     elif isinstance(filepath, list):
-        files=filepath
+        files = filepath
     else:
-        raise TypeError(
-            "filepath must be str or list[str]"
-        )
+        raise TypeError("filepath must be str or list[str]")
 
     for file in files:
-
-
         path = Path(file)
         if not path.exists():
             logger.warning("File does not exist: %s", path)
             continue
         try:
             path.unlink()
-            logger.info(f'File successfully deleted {path}')
-
+            logger.info(f"File successfully deleted {path}")
 
         except FileNotFoundError:
             logger.warning("File already deleted: %s", path)

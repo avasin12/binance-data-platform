@@ -105,13 +105,13 @@ Technologies:
 Raw storage format:
 
 ```
-raw/binance/trades/{symbol}/{YYYY/MM/DD}/{run_id}/trades.json
+raw/binance/trades/{symbol}/{YYYY/MM/DD}/trades.json
 ```
 
 Example:
 
 ```
-raw/binance/trades/BTCUSDT/2026/07/30/manual__2026-07-30T00:00:00/trades.json
+raw/binance/trades/BTCUSDT/2026/07/30/trades.json
 ```
 
 ---

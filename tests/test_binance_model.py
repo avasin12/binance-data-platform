@@ -46,12 +46,13 @@ def test_trade_model_invalid_id():
 
 def test_trade_model_missing_field():
     trade_data = {
-        "a": 6534656718,
-        "p": "64762.01",
-        "q": "0.00008",
+        "a": 1,
+        "p": "100",
+        "q": "0.5",
         "f": 27781,
-        "T": 1753565088190,
+        "T": 123456789,
         "m": False,
+        "M": True,
     }
 
     with pytest.raises(ValidationError):

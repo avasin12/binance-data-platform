@@ -1,4 +1,4 @@
-#/home/avasin/airflow/dags/acme/clients/minio_client.py
+# /home/avasin/airflow/dags/acme/clients/minio_client.py
 
 import logging
 from pathlib import Path
@@ -10,12 +10,12 @@ from acme.config.settings import settings
 
 logger = logging.getLogger(__name__)
 
+
 def get_minio_client():
     hook = S3Hook(aws_conn_id="minio_client")
     minio_client = hook.get_conn()
 
     return minio_client
-
 
 
 def upload_to_minio(file_info):
@@ -26,31 +26,21 @@ def upload_to_minio(file_info):
     path = Path(filepath)
 
     if not path.exists():
-        raise FileNotFoundError(
-            f"File does not exist: {filepath}"
-        )
+        raise FileNotFoundError(f"File does not exist: {filepath}")
 
     if path.stat().st_size == 0:
-        raise ValueError(
-            f"File is empty: {filepath}"
-        )
-
+        raise ValueError(f"File is empty: {filepath}")
 
     key = file_info["key"]
 
     bucket = settings.minio_raw_bucket
     try:
-
         minio_client.upload_file(filepath, bucket, key)
-        logger.info(f'Uploaded {file_info} to {key}')
+        logger.info(f"Uploaded {file_info} to {key}")
 
-        minio_client.head_object(
-            Bucket=bucket,
-            Key=key
-        )
+        minio_client.head_object(Bucket=bucket, Key=key)
         logger.info("File exists in MinIO")
 
-    
     except ClientError:
         logger.exception("Could not upload file to MinIO")
         raise

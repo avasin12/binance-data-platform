@@ -10,7 +10,6 @@ class Settings(BaseSettings):
         env_file=".env",
         env_prefix="",
         extra="ignore",
-
     )
 
 

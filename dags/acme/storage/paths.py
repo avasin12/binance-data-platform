@@ -1,8 +1,8 @@
-#/home/avasin/airflow/dags/acme/storage/paths.py
+# /home/avasin/airflow/dags/acme/storage/paths.py
 
 
-def build_raw_key(symbol, logical_date):
+def build_raw_key(symbol, data_interval_start):
 
-    date_path = logical_date.strftime('%Y/%m/%d')
+    date_path = data_interval_start.strftime("%Y/%m/%d")
 
     return f"raw/binance/trades/{symbol}/{date_path}/trades.json"
