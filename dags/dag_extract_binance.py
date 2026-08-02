@@ -1,9 +1,10 @@
 # /home/avasin/airflow/dags/dag_extract_binance.py
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.timetables.interval import CronDataIntervalTimetable
 
 from acme.clients.minio_client import upload_to_minio
 from acme.extract.extract_binance import extract_market_data
@@ -27,8 +28,11 @@ FILE_INFO_TEMPLATE = (
 with DAG(
     dag_id="dag_extract_binance",
     description="Extract Binance trades information and save raw data to MinIO",
-    schedule="@daily",
-    start_date=datetime(2026, 7, 1),
+    schedule=CronDataIntervalTimetable(
+        cron="0 0 * * *",
+        timezone="UTC",
+    ),
+    start_date=datetime(2026, 7, 1, tzinfo=UTC),
     catchup=False,
     tags=tags,
     max_active_runs=1,
