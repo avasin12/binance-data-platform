@@ -370,25 +370,6 @@ services:
   #     <<: *airflow-common-depends-on
   #     airflow-init:
   #       condition: service_completed_successfully
-
-
-  postgres-staging:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: staging
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres-staging-volume:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "staging_user", "-d", "staging"]
-      interval: 10s
-      retries: 5
-      start_period: 5s
-    restart: always
-
   clickhouse:
     image: clickhouse/clickhouse-server:24.8
     environment:
@@ -426,5 +407,4 @@ services:
 volumes:
   postgres-db-volume:
   minio-data:
-  postgres-staging-volume:
   clickhouse-marts-volume:

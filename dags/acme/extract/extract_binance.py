@@ -10,7 +10,7 @@ from acme.quality.validate_binance import (
     validate_binance_response,
     validate_trades_schema,
 )
-from acme.storage.paths import build_raw_key
+from acme.storage.paths import build_bronze_key
 from acme.utils.dag_context import get_dag_context
 from acme.utils.time import build_binance_time_window
 
@@ -103,7 +103,9 @@ def extract_market_data():
 
     logger.info("Received %s trades", len(response_result))
 
-    storage_key = build_raw_key(symbol=symbol, data_interval_start=data_interval_start)
+    storage_key = build_bronze_key(
+        symbol=symbol, data_interval_start=data_interval_start
+    )
 
     result_path = Path(settings.temp_storage) / storage_key
 

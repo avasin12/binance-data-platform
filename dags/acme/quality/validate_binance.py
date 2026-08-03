@@ -27,6 +27,6 @@ def validate_binance_response(data):
         raise ValueError("Empty Binance response")
 
     logger.info(
-        "Raw data quality check passed. Trades count: %s",
+        "Bronze data quality check passed. Trades count: %s",
         len(data),
     )

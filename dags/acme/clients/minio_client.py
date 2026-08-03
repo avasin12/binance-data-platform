@@ -33,7 +33,7 @@ def upload_to_minio(file_info):
 
     key = file_info["key"]
 
-    bucket = settings.minio_raw_bucket
+    bucket = settings.minio_bronze_bucket
     try:
         minio_client.upload_file(filepath, bucket, key)
         logger.info(f"Uploaded {file_info} to {key}")

@@ -29,7 +29,7 @@ FILE_INFO_TEMPLATE = (
 
 with DAG(
     dag_id="dag_extract_binance",
-    description="Extract Binance trades information and save raw data to MinIO",
+    description="Extract Binance trades and save source data to the MinIO Bronze layer",
     schedule=CronDataIntervalTimetable(
         cron="0 0 * * *",
         timezone="UTC",
