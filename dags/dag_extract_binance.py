@@ -14,9 +14,11 @@ from acme.utils.notification import notify_on_failed
 
 default_args = {
     "owner": "avasin",
-    "retries": 0,
+    "retries": 2,
     "retry_delay": timedelta(minutes=2),
     "on_failure_callback": notify_on_failed,
+    "retry_exponential_backoff": True,
+    "max_retry_delay": timedelta(minutes=10),
 }
 
 tags = ["critical", "etl"]
