@@ -16,7 +16,7 @@ def validate_trades_schema(data):
     return result
 
 
-def validate_binance_response(data, limit):
+def validate_binance_response(data):
 
     if not isinstance(data, list):
         logger.error("Response is not a list")
@@ -25,13 +25,6 @@ def validate_binance_response(data, limit):
     if len(data) == 0:
         logger.warning("Response is empty")
         raise ValueError("Empty Binance response")
-
-    if len(data) != limit:
-        logger.warning(
-            "Received %s trades instead of expected %s",
-            len(data),
-            limit,
-        )
 
     logger.info(
         "Raw data quality check passed. Trades count: %s",

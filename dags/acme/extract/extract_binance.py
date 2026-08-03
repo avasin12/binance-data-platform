@@ -4,8 +4,7 @@ import json
 import logging
 from pathlib import Path
 
-import requests
-
+from acme.clients.binance_client import fetch_agg_trades_page
 from acme.config.settings import settings
 from acme.quality.validate_binance import (
     validate_binance_response,
@@ -16,6 +15,62 @@ from acme.utils.dag_context import get_dag_context
 from acme.utils.time import build_binance_time_window
 
 logger = logging.getLogger(__name__)
+
+
+def fetch_agg_trades_pagination(url, request_params):
+
+    current_request_params = request_params.copy()
+
+    symbol = request_params["symbol"]
+    limit = request_params["limit"]
+    start_time_ms = request_params["startTime"]
+    end_time_ms = request_params["endTime"]
+
+    current_cursor = None
+
+    all_trades = []
+
+    while True:
+        page_response = fetch_agg_trades_page(
+            url=url, request_params=current_request_params
+        )
+
+        if page_response == []:
+            break
+
+        validate_binance_response(data=page_response)
+        validate_trades_schema(data=page_response)
+
+        reached_interval_end = False
+
+        for trade in page_response:
+            if trade["T"] < start_time_ms:
+                continue
+            elif trade["T"] > end_time_ms:
+                reached_interval_end = True
+                break
+            else:
+                all_trades.append(trade)
+
+        if reached_interval_end:
+            break
+
+        last_trade_id = page_response[-1]["a"]
+
+        next_cursor = last_trade_id + 1
+
+        if current_cursor is not None and next_cursor <= current_cursor:
+            raise RuntimeError("Pagination cursor did not advance")
+
+        current_cursor = next_cursor
+
+        current_request_params = {
+            "symbol": symbol,
+            "limit": limit,
+            "fromId": current_cursor,
+        }
+
+    return all_trades
 
 
 def extract_market_data():
@@ -33,6 +88,8 @@ def extract_market_data():
         data_interval_start=data_interval_start, data_interval_end=data_interval_end
     )
 
+    url = settings.binance_api_url
+
     request_params = {
         "symbol": symbol,
         "limit": limit,
@@ -40,38 +97,9 @@ def extract_market_data():
         "endTime": binance_end_time_ms,
     }
 
-    url = settings.binance_api_url
-
-    try:
-        response = requests.get(
-            url=url,
-            params=request_params,
-            timeout=30,
-        )
-        response.raise_for_status()
-
-    except requests.exceptions.Timeout:
-        logger.exception("Binance timeout. params=%s", request_params)
-        raise
-
-    except requests.exceptions.ConnectionError:
-        logger.exception("Binance connection error. params=%s", request_params)
-        raise
-
-    except requests.exceptions.HTTPError:
-        logger.exception("Binance HTTP error. params=%s", request_params)
-        raise
-
-    try:
-        response_result = response.json()
-
-    except ValueError:
-        logger.exception("Could not decode Binance response as JSON")
-        raise
-
-    validate_binance_response(data=response_result, limit=limit)
-
-    validate_trades_schema(data=response_result)
+    response_result = fetch_agg_trades_pagination(
+        url=url, request_params=request_params
+    )
 
     logger.info("Received %s trades", len(response_result))
 
